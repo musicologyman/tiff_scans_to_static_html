@@ -1,0 +1,3 @@
+# `tiff_scans_to_static_html`
+
+Converts files in a directory containing tiff scans with filenames in the form "Scan #.tiff" where "#" is an integer to jpeg files with names in the form "page_###.jpg" where "###" is an integer, zero-padded if necessary. Then creates a series of static html pages of the form "page_###.html", each displaying the corresponding jpeg file and linking to each other sequentially.
