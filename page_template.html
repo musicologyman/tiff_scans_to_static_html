@@ -7,19 +7,47 @@
       body { 
         font-family: Arial,Helvetica,Sans-Serif;
       }
+
+      .image-container {
+        width: 616px;
+        height: 731px;
+        float: left;
+      }
+
+      .page-number-container {
+        width: 300px;
+        height: 640px;
+        margin-right: 20px;
+      }
+
+      .next-button {
+        float: right;
+      }
+
+      .previous-button {
+        float: left;
+      }
+
+      .big-page-number {
+        font-family: Arial,Helvetica,Sans-Serif;
+        font-size: 100px;
+        width: 300px;
+        height: 640px;
+        float: right;
+      }
     </style>
   </head>
   <body>
-    <div style="width:616px;height:731px;float:left">
-      <a href="page_${prev_page_number}.html" style="float:left">Previous</a>
-      <a href="page_${next_page_number}.html" style="float:right">Next</a>
+    <div class="image-container">
+      <a href="page_${prev_page_number}.html" class="previous-button">Previous</a>
+      <a href="page_${next_page_number}.html" class="next-button">Next</a>
       <img width="611" height="726" src="page_${current_page_number}.jpg">
-      <a href="page_${prev_page_number}.html" style="float:left">Previous</a>
-      <a href="page_${next_page_number}.html" style="float:right">Next</a>
+      <a href="page_${prev_page_number}.html" class="previous-button">Previous</a>
+      <a href="page_${next_page_number}.html" class="next-button">Next</a>
     </div>
-    <div style='float:right;width=300px;height:640px;margin-right:20px'>
+    <div class="page-number-container">
       <div>Page number from image file:</div>
-      <div style='font-family:Arial,Helvetica,Sans-Serif;font-size:100px'>${current_page_number}</div>
+      <div class="big-page-number">${current_page_number}</div>
     </div>
   </body>
 </html>
