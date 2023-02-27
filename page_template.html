@@ -3,60 +3,18 @@
     <meta charset="utf-8">
     <meta http-equiv="cache-control" content="no-cache">
     <title>${title}</title>
-    <style>
-      body { 
-        font-family: Arial,Helvetica,Sans-Serif;
-      }
-
-      .image-container {
-        width: 616px;
-        height: 731px;
-        float: left;
-      }
-
-      .page-number-container {
-        width: 300px;
-        height: 640px;
-        margin-right: 20px;
-        clear: left;
-      }
-
-      .next-button {
-        float: right;
-      }
-
-      .previous-button {
-        float: left;
-      }
-
-      .big-page-number {
-        font-family: Arial,Helvetica,Sans-Serif;
-        font-size: 100px;
-        width: 300px;
-        height: 640px;
-        float: right;
-      }
-
-      a:link, a:visited {
-        color: navy;
-      }
-
-      .home {
-        font-family: Arial,Helvetica,Sans-Serif; 
-        text-align: center;
-      }
-    </style>
+    <link rel="stylesheet" href="pages.css">
   </head>
   <body>
     <div class="home">
       <a href='index.html'>HOME</a>
     </div>
     <div class="image-container">
-      <a href="page_${prev_page_number}.html" class="previous-button">Previous</a>
-      <a href="page_${next_page_number}.html" class="next-button">Next</a>
-      <img width="611" height="726" src="page_${current_page_number}.jpg">
-      <a href="page_${prev_page_number}.html" class="previous-button">Previous</a>
-      <a href="page_${next_page_number}.html" class="next-button">Next</a>
+      <a href="${prev_page}.html" class="previous-button">Previous</a>
+      <a href="${next_page}.html" class="next-button">Next</a>
+      <img width="611" height="726" src="${current_page}.jpg">
+      <a href="${prev_page}.html" class="previous-button">Previous</a>
+      <a href="${next_page}.html" class="next-button">Next</a>
     </div>
     <div class="page-number-container">
       <div>Page number from image file:</div>

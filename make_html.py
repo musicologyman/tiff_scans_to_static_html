@@ -7,28 +7,59 @@ import string
 import subprocess
 import typing
 
+import regex
+
+from toolz.itertoolz import sliding_window
+
 DEFAULT_PAGE_TEMPLATE_NAME = 'page_template.html'
+
+PAGE_NUMBER_RE = regex.compile(r'page(?P<separator>\.|_)(?P<number>\d+)')
+
+ARABIC_TO_ROMAN_MAPPING = {1: 'i', 2: 'ii', 3: 'iii', 4: 'iv', 5: 'v', 6: 'vi', 
+                        7: 'vii', 8: 'viii', 9: 'ix', 10: 'x', 11: 'xi', 
+                        12: 'xii', 13: 'xiii'}
 
 def read_template_text(filename=DEFAULT_PAGE_TEMPLATE_NAME) -> str:
     with open(filename) as fp:
         return fp.read()
 
-def get_substitutions(current_page_number: int) -> dict[str, str]:
+@functools.singledispatch
+def extract_page_number(stem: str):
+    m: regex.Match = PAGE_NUMBER_RE.search(stem)
+    if m:
+        separator = m['separator']
+        number = int(m['number'])
+        
+        if separator == '.':
+            return ARABIC_TO_ROMAN_MAPPING[number]
+        else:
+            return number
+
+@extract_page_number.register
+def _(p: pathlib.Path):
+    return extract_page_number(p.stem)
+
+def get_substitutions(prev: pathlib.Path, \
+                      current: pathlib.Path, \
+                      next_: pathlib.Path) \
+        -> dict[str, str]:
+    current_page_number = extract_page_number(current)
     return {
-        "title": f'page {current_page_number}',
-        "current_page_number": f'{current_page_number:003}',
-        "prev_page_number": f'{(current_page_number - 1):003}',
-        "next_page_number": f'{(current_page_number + 1):003}'
+        "title": f'Page {current_page_number}',
+        "current_page_number": current_page_number,
+        "prev_page": f'{prev.stem}',
+        "current_page": f'{current.stem}',
+        "next_page": f'{next_.stem}'
     }
 
-def _make_page(template: string.Template, page_number: int) -> str:
-    substitutions: dict[str, str] = get_substitutions(page_number)
+def _make_page(template: string.Template, \
+        substitutions: dict[str, typing.Any]) -> str:
     return template.substitute(substitutions)
 
 def _write_page(page_text: str, 
                 dest_path: pathlib.Path, 
-                page_number: int) -> None:
-    pathlib.Path(dest_path / f'page_{page_number:03}.html') \
+                page_stem: str) -> None:
+    pathlib.Path(dest_path / pathlib.Path(page_stem).with_suffix('.html')) \
         .write_text(page_text)
 
 def configure_logging():
@@ -50,7 +81,6 @@ def configure_logging():
     logger.addHandler(fh)
     logger.addHandler(ch)
 
-
 def main():
     configure_logging()
     logger = logging.getLogger('root')
@@ -59,17 +89,20 @@ def main():
     image_dir= pathlib.Path('~/Documents/scanned_documents/2023_02_24/jpg') \
                     .expanduser()
 
-    for p in sorted(image_dir.glob('*.jpg')):
-        page_number: int = int(p.name[5:8])
-        filename = f'page_{page_number:03}.html'
-        if pathlib.Path(p.parent / filename).exists():
+    jpg_files = sorted(image_dir.glob('*.jpg')) 
+
+    for prev, current, next_ in sliding_window(3, jpg_files):
+        filename = current.with_suffix('.html')
+        if pathlib.Path(current.parent / filename).exists():
             logging.debug('skipping %s: already exists', filename)
             continue
         else:
             logging.info('will make html page %s', filename)
 
-        page_text: str = _make_page(page_template, page_number)
-        _write_page(page_text, dest_path=image_dir, page_number=page_number)
+        substitutions = get_substitutions(prev, current, next_)
+        # page_text: str = _make_page(page_template, substitutions)
+        page_text: str = page_template.substitute(substitutions)
+        _write_page(page_text, dest_path=image_dir, page_stem=current.stem)
 
 if __name__ == '__main__':
     main()
