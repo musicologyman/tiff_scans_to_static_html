@@ -59,7 +59,7 @@ def _make_page(template: string.Template, \
 def _write_page(page_text: str, 
                 dest_path: pathlib.Path, 
                 page_stem: str) -> None:
-    pathlib.Path(dest_path / pathlib.Path(page_stem).with_suffix('.html')) \
+    pathlib.Path(dest_path / pathlib.Path(f'{page_stem}.html')) \
         .write_text(page_text)
 
 def configure_logging():
@@ -100,7 +100,6 @@ def main():
             logging.info('will make html page %s', filename)
 
         substitutions = get_substitutions(prev, current, next_)
-        # page_text: str = _make_page(page_template, substitutions)
         page_text: str = page_template.substitute(substitutions)
         _write_page(page_text, dest_path=image_dir, page_stem=current.stem)
 

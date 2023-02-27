@@ -1,0 +1,51 @@
+import string
+
+from pathlib import Path
+
+import regex
+
+PAGE_NUMBER_RE = regex.compile(r'page(?P<delimiter>\.|_)(?P<number>\d+)')
+ROMAN_NUMERALS = 'i ii iii iv v vi vii viii ix x xi xii xiii'.split()
+ARABIC_TO_ROMAN = {arabic:roman 
+                   for arabic,roman 
+                    in zip(range(1,len(ROMAN_NUMERALS)+1), ROMAN_NUMERALS)}
+
+
+TOC_TEMPLATE = string.Template('''    <div class="toc-entry">
+        <a href="${file_name}">${page_number}</a>
+    </div>\n''')
+
+def extract_number(file_name):
+    m = PAGE_NUMBER_RE.search(file_name)
+    number = int(m['number'])
+    if m['delimiter'] == '.':
+        return ARABIC_TO_ROMAN[number]
+    else:
+        return number
+
+def get_toc_entry(file_name) = \
+           { 'file_name': file_name, 
+             'page_number': extract_number(file_name) } \
+           |> TOC_TEMPLATE.substitute
+
+web_pages_dir = (Path('~/Documents/scanned_documents/2023_02_24/jpg')
+                 |> .expanduser())
+
+
+toc_entries = web_pages_dir \
+              |> .glob('page*.html')  \
+              |> map$(p -> p.name) \
+              |> sorted \
+              |> filter$(PAGE_NUMBER_RE.search) \
+              |> map$(get_toc_entry) \
+              |> groupsof$(10) \
+              |> map$(reduce$(+)) \
+              |> map$(s -> s + '<br>') \
+              |> list \
+              |> reduce$(+)
+
+Path('index_template.html').read_text() \
+|> string.Template \
+|> .substitute({'entries': toc_entries}) \
+|> Path(web_pages_dir / 'index.html').write_text
+

@@ -1,3 +1,5 @@
 .vscode/
 *.log
 .hintrc
+__pycache__/
+*.coco.backup
