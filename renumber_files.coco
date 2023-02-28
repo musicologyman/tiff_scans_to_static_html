@@ -1,0 +1,19 @@
+from pathlib import Path
+
+import regex
+
+def get_rename_spec(p: Path, adjustment: int) -> str:
+    m = regex.search(r'\d+', p.stem)
+    if m:
+        number = int(m[0])
+    page_number = number + adjustment
+    return (p, f'page_{page_number:03}')
+
+adjustment = 257
+   
+rename_specs = Path.cwd().glob('*.tif') \
+               |> sorted \
+               |> map$(get_rename_spec$(?, adjustment)) 
+
+for p, n in rename_specs:
+    p.rename(p.with_stem(n))
